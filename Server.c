@@ -41,5 +41,37 @@ int main(int argc, char const *argv[])
         error("Binding Faild.");
     }
 
+    listen(sockfd, 5);
+    clilen = sizeof(cli_addr);
+
+    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+    if (newsockfd < 0) {
+        error("Error on Accept.");
+    }
+
+    while (1) {
+        bzero(buffer, 255);
+        n = read(newsockfd, buffer, 255);
+        if (n < 0) {
+            error("Error on reading.");
+        }
+        printf("Client: %s\n", buffer);
+        bzero(buffer, 255);
+        fgets(buffer, 255, stdin);
+
+        n = write(newsockfd, buffer, strlen(buffer));
+        if (n < 0) {
+            error("Error on writtin.");
+        }
+
+        int i = strncmp("Bye", buffer, 3);
+        if (i == 0) {
+            break;
+        }
+    }
+    
+    close(newsockfd);
+    close(sockfd);
+
     return 0;
 }
